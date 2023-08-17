@@ -226,6 +226,10 @@ func EstimateSizes(in []byte, s *Scratch) (tableSz, dataSz, reuseSz int, err err
 	return tableSz, dataSz, reuseSz, nil
 }
 
+func (s *Scratch) AlexCompress1X(src []byte) ([]byte, error) {
+	return s.compress1X(src)
+}
+
 func (s *Scratch) compress1X(src []byte) ([]byte, error) {
 	return s.compress1xDo(s.Out, src)
 }
