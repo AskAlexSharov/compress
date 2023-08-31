@@ -30,3 +30,4 @@ perf.data.old
 
 # gdb history
 .gdb_history
+.idea
