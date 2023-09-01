@@ -9,34 +9,34 @@ import (
 	"testing"
 )
 
-func assertEqual(t testing.TB, want, got interface{}) {
-	t.Helper()
+func assertEqual(tb testing.TB, want, got interface{}) {
+	tb.Helper()
 	if !reflect.DeepEqual(want, got) {
-		t.Fatalf("want %#v, got %#v", want, got)
+		tb.Fatalf("want %#v, got %#v", want, got)
 	}
 }
 
-func assertNotEqual(t testing.TB, want, got interface{}) {
-	t.Helper()
+func assertNotEqual(tb testing.TB, want, got interface{}) {
+	tb.Helper()
 	if reflect.DeepEqual(want, got) {
-		t.Fatalf("did not want %#v, got %#v", want, got)
+		tb.Fatalf("did not want %#v, got %#v", want, got)
 	}
 }
 
-func assertNil(t testing.TB, object interface{}) {
+func assertNil(tb testing.TB, object interface{}) {
 	if isNil(object) {
 		return
 	}
-	t.Helper()
-	t.Fatalf("Expected value to be nil.")
+	tb.Helper()
+	tb.Fatalf("Expected value to be nil.")
 }
 
-func assertNotNil(t testing.TB, object interface{}) {
+func assertNotNil(tb testing.TB, object interface{}) {
 	if !isNil(object) {
 		return
 	}
-	t.Helper()
-	t.Fatalf("Expected value not to be nil.")
+	tb.Helper()
+	tb.Fatalf("Expected value not to be nil.")
 }
 
 // isNil checks if a specified object is nil or not, without Failing.
