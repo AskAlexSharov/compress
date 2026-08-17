@@ -72,7 +72,11 @@ func BenchmarkDigestSTW(b *testing.B) {
 		b.SetBytes(n)
 		for b.Loop() {
 			done := make(chan struct{})
-			go func() { defer close(done); work() }()
+			hashing := make(chan struct{})
+			go func() { defer close(done); close(hashing); work() }()
+			// Wait until the hash goroutine is running, so the collection below
+			// cannot finish before the hash has even started.
+			<-hashing
 			start := time.Now()
 			runtime.GC() // one per iteration, so the mean is well defined
 			total += time.Since(start)
