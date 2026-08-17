@@ -14,8 +14,9 @@ var benchmarks = []struct {
 	{"4B", 4},
 	{"100B", 100},
 	{"4KB", 4e3},
-	{"64KB", 64e3},   // just under maxAsmSize: one call into writeBlocks
-	{"128KB", 128e3}, // just over: Write feeds writeBlocks in chunks
+	{"64KB", 64e3},
+	{"128KB", 128e3}, // just under maxAsmSize: one call into writeBlocks
+	{"256KB", 256e3}, // just over: Write feeds writeBlocks in chunks
 	{"10MB", 10e6},
 }
 
