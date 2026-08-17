@@ -55,7 +55,7 @@ func (d *Digest) Reset() {
 // maxAsmSize bounds the input handed to a single writeBlocks call. Assembly is
 // never preemptible, so an unbounded call holds every P in stop-the-world for
 // its duration. Whole 32-byte blocks, so Write can feed it in pieces.
-const maxAsmSize = 64 * 1024 // 2048 whole 32-byte blocks
+const maxAsmSize = 128 << 10 // 4096 whole 32-byte blocks
 
 // Size always returns 8 bytes.
 func (d *Digest) Size() int { return 8 }
