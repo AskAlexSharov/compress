@@ -2,6 +2,7 @@ package xxhash
 
 import (
 	"runtime"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -67,23 +68,42 @@ func BenchmarkDigestSTW(b *testing.B) {
 	// reports the mean wall time of one collection.
 	gcWaitPerOp := func(b *testing.B, n int64, work func()) {
 		var total time.Duration
-		var iters int
+		var iters, missed int
 
 		b.SetBytes(n)
 		for b.Loop() {
 			done := make(chan struct{})
-			hashing := make(chan struct{})
-			go func() { defer close(done); close(hashing); work() }()
-			// Wait until the hash goroutine is running, so the collection below
-			// cannot finish before the hash has even started.
-			<-hashing
+			var began atomic.Int64
+			go func() {
+				defer close(done)
+				began.Store(time.Now().UnixNano())
+				work()
+			}()
 			start := time.Now()
 			runtime.GC() // one per iteration, so the mean is well defined
-			total += time.Since(start)
-			iters++
+			end := time.Now()
 			<-done
+
+			// Only count the iteration if the work had started before the
+			// collection finished. Otherwise there was nothing to overlap and
+			// the sample says nothing about preemptibility. Verifying beats
+			// handshaking: a signal sent just before work() begins still leaves
+			// a window, and this closes it for both the bounded and unbounded
+			// build.
+			if b := began.Load(); b != 0 && b < end.UnixNano() {
+				total += end.Sub(start)
+				iters++
+			} else {
+				missed++
+			}
+		}
+		if iters == 0 {
+			b.Skip("no iteration overlapped the collection")
 		}
 		b.ReportMetric(float64(total.Nanoseconds())/float64(iters), "gcwait-ns/op")
+		if missed > 0 {
+			b.ReportMetric(float64(missed), "missed-overlap")
+		}
 	}
 
 	for _, bb := range []struct {
